@@ -1,5 +1,7 @@
 {
   "name": "caltex-ktp",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }
