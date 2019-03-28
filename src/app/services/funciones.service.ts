@@ -20,7 +20,6 @@ export class FuncionesService {
 
   constructor( private loadingCtrl: LoadingController,
                private alertCtrl:   AlertController,
-               private datos:       DatosService,
                private toastCtrl:   ToastController ) {
   }
 
@@ -34,11 +33,11 @@ export class FuncionesService {
       return 'buenas noches '; }
   }
 
-  cargaEspera( milisegundos?) {
-    this.loader = this.loadingCtrl.create({
+  async cargaEspera( milisegundos?) {
+    this.loader = await this.loadingCtrl.create({
       duration: ( milisegundos != null && milisegundos !== undefined ? milisegundos : 3000 )
       });
-    this.loader.present();
+    await this.loader.present();
   }
 
   descargaEspera() {
@@ -48,7 +47,6 @@ export class FuncionesService {
   async msgAlert( titulo, texto ) {
     const alert = await this.alertCtrl.create({
       header: titulo,
-      /*subHeader: 'Subtitle',*/
       message: texto,
       buttons: ['OK']
     });
@@ -61,7 +59,7 @@ export class FuncionesService {
       duration: 1500 * segundos,
       position: posicion || 'middle'
     });
-    toast.present();
+    await toast.present();
   }
 
 }

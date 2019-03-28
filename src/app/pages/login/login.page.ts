@@ -28,18 +28,23 @@ export class LoginPage implements OnInit {
   ngOnInit() {
     this.datos.getDataEmpresas().subscribe( data => this.empresas = data['empresas'] );
     this.usrdata();
+    //rubros
+    this.datos.getDataRubros().subscribe( data => this.datos.saveDatoLocal( 'KTP_rubros', data['rubros'] ) );
+    // marcas
+    this.datos.getDataMarcas().subscribe( data => this.datos.saveDatoLocal( 'KTP_marcas', data['marcas'] ) );
+    // superfamilias
+    this.datos.getDataSuperFamilias().subscribe( data => this.datos.saveDatoLocal( 'KTP_marcas', data['marcas'] ) );
   }
 
   async usrdata() {
     const usr = await this.datos.readDatoLocal( 'KTP_usuario' )
-            .then(  data => { console.log(data);
-                              this.email = ( data === undefined ) ? '' : data.EMAIL; },
+            .then(  data  => { this.email = ( data === undefined ) ? '' : data.EMAIL; },
                     error => { console.log(error); } );
   }
 
   doIniciar() {
     if ( this.email === '' || this.clave === '' || this.empresa === ''  ) {
-      this.funciones.msgAlert("ATENCION","Debe indicar: Email, clave y empresa para iniciar.");
+      this.funciones.msgAlert('ATENCION', 'Debe indicar: Email, clave y empresa para iniciar.' );
     } else {
       this.datos.getDataUser( 'proalma', this.email, this.clave, this.empresa )
         .subscribe( data => {
@@ -53,7 +58,7 @@ export class LoginPage implements OnInit {
               }
             });
             //
-            this.router.navigate( ['/tabinicio'] );
+            this.router.navigate( ['/tabs'] );
           }
         },
         err => {

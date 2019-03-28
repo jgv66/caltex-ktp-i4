@@ -11,9 +11,11 @@ import { Storage } from '@ionic/storage';
 export class DatosService {
 
   cualquierDato: any;
-  xDato: any;
-  loading: any;
-  params: any;
+  xDato:    any;
+  loading:  any;
+  params:   any;
+  headers:  any;
+  options:  any;
 
   // puerto: CALTEX
   url    = 'https://api.kinetik.cl/caltex-inf' ; // 'http://23.239.29.171';  // 
@@ -63,7 +65,7 @@ export class DatosService {
 
   /* FUNCIONES REMOTAS */
   getDataEmpresas() {   /* debo cambiarlo por GET */
-    return this.http.post( this.url + '/ktp_empresas', {} );
+    return this.http.post( this.url + '/ktp_empresas', {}, {} );
   }
   getDataRubros() {
     return this.http.post( this.url + '/ktp_rubros', {} );
@@ -81,6 +83,13 @@ export class DatosService {
     const body  = { sp: 'ksp_buscarUsuario', datos: datos };
     return this.http.post( this.url + this.puerto + '/' + proceso, body )
       .pipe( tap( value =>  { if ( this.loading ) { this.loading.dismiss(); } }) );
+  }
+
+  getDataSp( xsp: string, mostrar: boolean, datos: {}  ) {
+    if ( mostrar ) { this.showLoading(); }
+    const body = datos;
+    return this.http.post( this.url + this.puerto + xsp, body )
+      .pipe( tap( value =>  { if ( this.loading && mostrar ) { this.loading.dismiss(); } }) );
   }
 
   getDataSt( filtros: any, mostrar: any ) {

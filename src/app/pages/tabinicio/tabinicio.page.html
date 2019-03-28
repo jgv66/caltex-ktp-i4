@@ -1,0 +1,242 @@
+
+<ion-header no-border>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-img src="./assets/imgs/logo-chico.png" alt="" class="navbar-img"></ion-img>   
+        </ion-buttons>
+        <ion-title>{{ nombreEmpresa }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="masOpciones()"        ><ion-icon slot="icon-only" name="flash"   [color]=" filtrosVarios ? 'danger' : 'primary' "></ion-icon></ion-button>
+            <ion-button (click)="imagenOnOff()"        ><ion-icon slot="icon-only" [name]=" config_imagenes ? 'eye' : 'eye-off' " color="primary"></ion-icon></ion-button>
+            <ion-button (click)="filtros()"            ><ion-icon slot="icon-only" name="options" color="primary"></ion-icon></ion-button>
+            <ion-button (click)="orden()"              ><ion-icon slot="icon-only" name="funnel"  color="primary"></ion-icon></ion-button>
+            <ion-button (click)="ConfiguracionLocal()" ><ion-icon slot="icon-only" name="menu"    color="primary"></ion-icon></ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+    <ion-list>
+            
+        <ion-item *ngIf=" cliente ">
+
+            <table>
+                <tr>
+                    <td text-right><p>Código Cliente :</p></td>
+                    <td><p><b>{{ cliente.codigo }}</b></p></td>
+                </tr>
+                <tr *ngIf=" cliente.sucursal.trim() != '' ">
+                    <td text-right><p>Sucursal :</p></td>
+                    <td><p><b>{{ cliente.sucursal }}</b></p></td>
+                </tr>                
+                <tr>
+                    <td text-right><p>Razon Social :</p></td>
+                    <td><p><b>{{ cliente.razonsocial }}</b></p></td>
+                </tr>
+            </table>
+
+            <button ion-button clear item-end icon-only (click)="limpiarCliente()">
+                <ion-icon name="close" color="primary"></ion-icon>
+            </button>
+    
+        </ion-item>
+    
+        <ion-item-group>
+            <ion-item>
+                <ion-label >Código Téc. :</ion-label>
+                <ion-input type="text" name="codproducto" [(ngModel)]="codproducto" clearInput="true"></ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label >Descripción :</ion-label>
+                <ion-input type="text" name="descripcion" [(ngModel)]="descripcion" clearInput="true"></ion-input>
+            </ion-item>
+
+            <!-- <ion-item *ngIf=" filtrosVarios " >
+                <ion-label >Marcas...</ion-label>
+                    <ion-select [(ngModel)]="codMarcas" multiple="true" cancelText="Cancelar" okText="Ok!">
+                    <ion-option *ngFor="let mar of baseLocal.lasMarcas" value="{{ mar.marca }}">{{ mar.descripcion }}</ion-option>
+                </ion-select>
+            </ion-item>
+            <ion-item *ngIf=" filtrosVarios " >
+                <ion-label >S.Familias...</ion-label>
+                <ion-select [(ngModel)]="codSuperFam" multiple="true" cancelText="Cancelar" okText="Ok!">
+                    <ion-option *ngFor="let sf of baseLocal.lasSuperFam" value="{{ sf.superfam }}">{{ sf.nombresf }}</ion-option>
+                </ion-select>
+            </ion-item> -->
+        </ion-item-group>
+    
+        <ion-grid>
+            <ion-row>
+                <ion-col size="2">
+                    <ion-button expand="block" size="small" color="dark" (click)="scanBarcode()"><ion-icon name="barcode"></ion-icon></ion-button>
+                </ion-col>
+                <ion-col size="10">
+                    <ion-button expand="block" size="small" color="primary" (click)="aBuscarProductos( 1 )"><ion-icon slot="start" name="search"></ion-icon>Buscar</ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+        
+        <ion-card *ngFor="let producto of listaProductos">
+
+            <ion-card-header>
+                <ion-grid>
+                    <ion-row>
+                        <ion-col text-right size="2">
+                            <h1>Código :</h1>
+                        </ion-col>
+                        <ion-col text-left size="10">
+                            <h1><b>{{ producto.codigotec }}</b></h1>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                        <ion-col text-right size="2">
+                            <h1>Descrip.:</h1>
+                        </ion-col>
+                        <ion-col text-left size="10">
+                            <h1><b>{{ producto.descripcion }}</b></h1>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                    <ion-col text-right size="2">
+                        <h1>Marca :</h1>
+                    </ion-col>
+                    <ion-col text-left size="4">
+                        <h1><b>{{ producto.marca }}</b></h1>
+                    </ion-col>
+                    <ion-col text-right size="2">
+                        <h1>S.Fami.:</h1>
+                    </ion-col>
+                    <ion-col text-left size="4">
+                        <h1><b>{{ producto.superfam }}</b></h1>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+            </ion-card-header>
+    
+            <ion-grid>
+                <ion-row>
+
+                    <ion-col size="4" *ngIf=" config_imagenes === true ">
+                        <ion-img  src="http://www.grupocaltex.cl/imagenes/fotos18/{{ producto.codigosincolor.trim() }}.jpg" 
+                                    class="imagen-producto" 
+                                    (click)="imagenGrande( producto )"
+                                    onerror="this.src='assets/imgs/auto-003.jpg'" >
+                        </ion-img>
+                    </ion-col>
+
+                    <ion-col>
+                        <ion-card-content>
+                            <ion-grid class="grid-productos">
+        
+                                <ion-row>
+                                    <ion-col>
+
+                                        <ion-row>
+                                            <ion-col text-right size="3">
+                                                <p>Venta : </p> 
+                                            </ion-col>
+                                            <ion-col text-left size="4" *ngIf=" producto.concompras == true ">
+                                                <ion-badge color="danger" item-end >de Futuro</ion-badge>
+                                            </ion-col>
+                                            <ion-col text-left size="4" *ngIf=" producto.concompras == false ">
+                                                <ion-badge color="primary" item-end >de Stock</ion-badge>
+                                            </ion-col>
+                                        </ion-row>
+
+                                        <ion-row>
+                                            <ion-col text-right size="3">
+                                                <p>Bod.({{ producto.bodega }}) : </p> 
+                                            </ion-col>
+                                            <ion-col text-left text-nowrap col-6>
+                                                <p>{{ producto.nombrebodega }}</p>
+                                            </ion-col>
+                                        </ion-row>
+        
+                                        <ion-row>
+                                            <ion-col text-right size="3">
+                                                <p>{{ producto.tipolista }} (<b>{{ producto.listaprecio }}</b>) :</p>
+                                            </ion-col>
+                                            <ion-col text-left size="4">
+                                                <ion-badge color="danger" item-end >${{ producto.precio | number:'1.0-0' }} ({{ producto.unidad1 }})</ion-badge>
+                                            </ion-col>
+                                            <ion-col>
+                                                <ion-badge color="indigo" item-end  (click)="cambiaDescuento(producto)">Dscto: {{ producto.dsctovend | number:'1.2-2' }}%</ion-badge>                           
+                                            </ion-col>
+                                        </ion-row>    
+
+                                        <ion-row>
+                                            <ion-col text-right size="3">
+                                                <p>Curva :</p> 
+                                            </ion-col>
+                                            <ion-col text-left size="4">
+                                                <p><b>{{ producto.rtu }}</b></p> 
+                                            </ion-col>
+                                        </ion-row>
+                                            
+                                        <ion-row>
+                                            <table border="1" width="100%" border-collapse="collapse">
+                                                <tr>
+                                                    <td align="center"> Bodega </td>
+                                                    <td align="center"> N.Venta </td>
+                                                    <td align="center"> Compras </td>  
+                                                    <td align="center"> Saldo </td>  
+                                                    <td align="center"> Tareas </td>  
+                                                </tr>                    
+                                                <tr>
+                                                    <td align="center"><b>{{ producto.fisico_ud1    | number:'1.0-0' }}</b></td>
+                                                    <td align="center"><b>{{ producto.pendiente_ud1 | number:'1.0-0' }}</b></td>
+                                                    <td align="center"><b>{{ producto.porllegar_ud1 | number:'1.0-0' }}</b></td>  
+                                                    <td align="center"><b>{{ producto.saldo_ud1     | number:'1.0-0' }}</b></td>  
+                                                    <td align="center"><b>{{ ((producto.saldo_ud1<=0)?0:(producto.saldo_ud1/producto.rtu)) | number:'1.0-0' }}</b></td>  
+                                                </tr>                    
+                                            </table>
+                                        </ion-row>
+
+                                        <ion-row  *ngIf=" cliente ">
+                                            <ion-col>
+                                                <ion-button slot="left" size="small" expand="full"  (click)="agregarAlCarro(producto,cliente)">
+                                                    <ion-icon name="cart"></ion-icon>
+                                                    Agregar al carro
+                                                </ion-button>
+                                            </ion-col>
+                                        </ion-row>
+
+                                    </ion-col>
+                                </ion-row>
+
+                                <!-- <ion-row>
+                                    <ion-button slot="icon-only" fill="clear" (click)="imagenGrande( producto )">
+                                        <ion-icon  slot="start" name="images"></ion-icon>
+                                    </ion-button>
+                                    <ion-button slot="icon-only" fill="clear" (click)="infoDelProducto( producto, 'V' )" *ngIf=" producto.pendiente_ud1 > 0 ">
+                                        <ion-icon name="eye"></ion-icon>
+                                    </ion-button>
+                                    <ion-button slot="icon-only" fill="clear" (click)="infoDelProducto( producto, 'C' )" *ngIf=" producto.porllegar_ud1 > 0 ">
+                                        <ion-icon name="boat"></ion-icon>
+                                    </ion-button>
+                                </ion-row> -->
+
+                            </ion-grid>
+                        </ion-card-content>
+                    </ion-col>
+
+                </ion-row>
+                
+            </ion-grid>
+    
+        </ion-card>        
+
+    </ion-list>
+
+    <ion-infinite-scroll (ionInfinite)="masDatos($event)" *ngIf=" lScrollInfinito === true "  >
+        <ion-infinite-scroll-content loading-spinner="dots" loadingText="Buscando más datos..."></ion-infinite-scroll-content>
+    </ion-infinite-scroll>    
+  
+    <ion-fab bottom left *ngIf=" largoListaProductos() > 1 ">
+        <button ion-fab mini (click)="scrollToTop()" color="danger">
+            <ion-icon name="arrow-up"></ion-icon>
+        </button>    
+    </ion-fab>
+
+</ion-content>
