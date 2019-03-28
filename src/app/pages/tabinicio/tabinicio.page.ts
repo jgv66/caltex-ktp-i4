@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit  } from '@angular/core';
 import { DatosService } from 'src/app/services/datos.service';
 import { FuncionesService } from 'src/app/services/funciones.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
+import { ImagenprodPage } from '../imagenprod/imagenprod.page';
 
 @Component({
   selector: 'app-tabinicio',
@@ -38,6 +39,7 @@ export class TabinicioPage implements OnInit {
 
   constructor( private datos: DatosService,
                private funciones: FuncionesService,
+               private modalCtrl: ModalController,
                private alertCtrl: AlertController ) {
     this.filtrosVarios      = false;
     this.codproducto        = '';
@@ -93,20 +95,22 @@ export class TabinicioPage implements OnInit {
           this.listaProductos  = [];
           this.lScrollInfinito = true;
       } else {
-          this.offset += 20 ;
+          this.offset += this.scrollSize ;
       }
       //
-      this.datos.getDataSp( '/ktp_buscarProductos', 
-                            true,
+
+      const listap = ( this.usuario.LISTACLIENTE !== undefined && this.usuario.LISTACLIENTE !== this.usuario.LISTAMODALIDAD )
+                     ? this.usuario.LISTACLIENTE : this.usuario.LISTAMODALIDAD;
+
+      this.datos.getDataSp( '/ktp_buscarProductos',
+                            false,
                             {
                               codigo:        this.codproducto,
                               descripcion:   this.descripcion,
                               superfamilias: this.codSuperFam,
                               rubros:        this.codRubros,
                               marcas:        this.codMarcas,
-                              listap:        ( this.usuario.LISTACLIENTE !== ''
-                                            && this.usuario.LISTACLIENTE !== this.usuario.LISTAMODALIDAD )
-                                                ? this.usuario.LISTACLIENTE : this.usuario.LISTAMODALIDAD,
+                              listap:        listap,
                               bodega:        this.usuario.BODEGA,
                               empresa:       this.usuario.EMPRESA,
                               kofu:          this.usuario.KOFU,
@@ -124,8 +128,7 @@ export class TabinicioPage implements OnInit {
                     )
     }
   }
-
-  revisaExitooFracaso( data, xdesde, infiniteScroll ) {
+  revisaExitooFracaso( data: any, xdesde: any, infiniteScroll?: any ) {
     const rs = data['data'];
 
     if ( rs === undefined || rs.data === 'error en la consulta' ) {
@@ -134,11 +137,10 @@ export class TabinicioPage implements OnInit {
     } else {
       //
       this.listaProductos = ( this.offset === 0 ) ? rs : this.listaProductos.concat(rs);
-      console.log( this.listaProductos );
 
       // aqui detengo el scroll
       if ( infiniteScroll ) {
-        infiniteScroll.complete();
+        infiniteScroll.target.complete();
       }
       //
       if ( rs.length < 20  )  {
@@ -147,8 +149,6 @@ export class TabinicioPage implements OnInit {
         this.lScrollInfinito = true ;
       }
       // revisar ecuaciones
-      // console.log(this.baseLocal.varCliente.length);
-      //
       let i = 0;
       this.listaProductos.forEach( fila => {
         // console.log("ecu_max1",fila.ecu_max1,( fila.ecu_max1 != '' ) );
@@ -177,8 +177,14 @@ export class TabinicioPage implements OnInit {
     }
   }
 
-  imagenGrande( producto ) {
+  async imagenGrande( producto ) {
     // this.navCtrl.push( ImagenProductoPage, { codigo: producto.codigosincolor } );
+    const bigimg = await this.modalCtrl.create({
+      component: ImagenprodPage,
+      componentProps: { imagen:        producto.codigosincolor,
+                        codigotecnico: producto.codigotec }
+    });
+    await bigimg.present();
   }
 
   infoDelProducto( producto, tipocon ) {
@@ -236,8 +242,9 @@ export class TabinicioPage implements OnInit {
   }
 
   scrollToTop() {
-    // this.content.scrollToTop();
+    // this.content.scrollToTop(1500);
   }
+  
 
   cambiaDescuento( producto ) {
     // let dvend   = producto.dsctovend;

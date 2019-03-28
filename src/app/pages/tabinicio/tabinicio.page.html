@@ -20,26 +20,25 @@
     <ion-list>
             
         <ion-item *ngIf=" cliente ">
-
-            <table>
-                <tr>
-                    <td text-right><p>Código Cliente :</p></td>
-                    <td><p><b>{{ cliente.codigo }}</b></p></td>
-                </tr>
-                <tr *ngIf=" cliente.sucursal.trim() != '' ">
-                    <td text-right><p>Sucursal :</p></td>
-                    <td><p><b>{{ cliente.sucursal }}</b></p></td>
-                </tr>                
-                <tr>
-                    <td text-right><p>Razon Social :</p></td>
-                    <td><p><b>{{ cliente.razonsocial }}</b></p></td>
-                </tr>
-            </table>
-
-            <button ion-button clear item-end icon-only (click)="limpiarCliente()">
-                <ion-icon name="close" color="primary"></ion-icon>
-            </button>
-    
+            <ion-grid>
+                <ion-row>
+                    <ion-col size="4"><ion-label text-right>Código Cliente :</ion-label></ion-col>
+                    <ion-col size="7"><ion-label text-left><b>{{ cliente.codigo }}</b></ion-label></ion-col>
+                    <ion-col size="1">  
+                    <ion-button fill="clear" slot="icon-only" (click)="limpiarCliente()">
+                        <ion-icon name="close" color="primary"></ion-icon>
+                    </ion-button>
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                    <ion-col size="4"><ion-label text-right>Sucursal :</ion-label></ion-col>
+                    <ion-col size="8"><ion-label text-left><b>{{ cliente.sucursal }}</b></ion-label></ion-col>
+                </ion-row>
+                <ion-row>
+                    <ion-col size="4"><ion-label text-right>Razón Soc. :</ion-label></ion-col>
+                    <ion-col size="8"><ion-label text-left><b>{{ cliente.razonsocial }}</b></ion-label></ion-col>
+                </ion-row>
+            </ion-grid>
         </ion-item>
     
         <ion-item-group>
@@ -51,19 +50,19 @@
                 <ion-label >Descripción :</ion-label>
                 <ion-input type="text" name="descripcion" [(ngModel)]="descripcion" clearInput="true"></ion-input>
             </ion-item>
-
-            <!-- <ion-item *ngIf=" filtrosVarios " >
+            <ion-item *ngIf=" filtrosVarios ">
                 <ion-label >Marcas...</ion-label>
-                    <ion-select [(ngModel)]="codMarcas" multiple="true" cancelText="Cancelar" okText="Ok!">
-                    <ion-option *ngFor="let mar of baseLocal.lasMarcas" value="{{ mar.marca }}">{{ mar.descripcion }}</ion-option>
+                <ion-select [(ngModel)]='codMarcas' interface="action-sheet"  multiple="true" placeholder="Seleccione marca(s)...">
+                    <ion-select-option *ngFor="let mar of marcas" [value]="mar.marca">{{ mar.descripcion }}</ion-select-option>
                 </ion-select>
             </ion-item>
-            <ion-item *ngIf=" filtrosVarios " >
-                <ion-label >S.Familias...</ion-label>
-                <ion-select [(ngModel)]="codSuperFam" multiple="true" cancelText="Cancelar" okText="Ok!">
-                    <ion-option *ngFor="let sf of baseLocal.lasSuperFam" value="{{ sf.superfam }}">{{ sf.nombresf }}</ion-option>
+            <ion-item *ngIf=" filtrosVarios ">
+                <ion-label >Super Familias...</ion-label>
+                <ion-select [(ngModel)]='codSuperFam' interface="alert"  multiple="true" placeholder="Seleccione Super-familia(s)...">
+                    <ion-select-option *ngFor="let sf of superfamilias" [value]="sf.superfam">{{ sf.nombresf }}</ion-select-option>
                 </ion-select>
-            </ion-item> -->
+            </ion-item>
+
         </ion-item-group>
     
         <ion-grid>
@@ -118,11 +117,10 @@
                 <ion-row>
 
                     <ion-col size="4" *ngIf=" config_imagenes === true ">
-                        <ion-img  src="http://www.grupocaltex.cl/imagenes/fotos18/{{ producto.codigosincolor.trim() }}.jpg" 
+                        <img  src="http://www.grupocaltex.cl/imagenes/fotos18/{{ producto.codigosincolor }}.jpg" 
                                     class="imagen-producto" 
                                     (click)="imagenGrande( producto )"
-                                    onerror="this.src='assets/imgs/auto-003.jpg'" >
-                        </ion-img>
+                                    onerror="this.src='assets/imgs/auto-003.jpg'" />
                     </ion-col>
 
                     <ion-col>
@@ -205,9 +203,9 @@
                                     </ion-col>
                                 </ion-row>
 
-                                <!-- <ion-row>
+                                <ion-row>
                                     <ion-button slot="icon-only" fill="clear" (click)="imagenGrande( producto )">
-                                        <ion-icon  slot="start" name="images"></ion-icon>
+                                        <ion-icon slot="start" name="images"></ion-icon>
                                     </ion-button>
                                     <ion-button slot="icon-only" fill="clear" (click)="infoDelProducto( producto, 'V' )" *ngIf=" producto.pendiente_ud1 > 0 ">
                                         <ion-icon name="eye"></ion-icon>
@@ -215,7 +213,7 @@
                                     <ion-button slot="icon-only" fill="clear" (click)="infoDelProducto( producto, 'C' )" *ngIf=" producto.porllegar_ud1 > 0 ">
                                         <ion-icon name="boat"></ion-icon>
                                     </ion-button>
-                                </ion-row> -->
+                                </ion-row>
 
                             </ion-grid>
                         </ion-card-content>
@@ -232,11 +230,12 @@
     <ion-infinite-scroll (ionInfinite)="masDatos($event)" *ngIf=" lScrollInfinito === true "  >
         <ion-infinite-scroll-content loading-spinner="dots" loadingText="Buscando más datos..."></ion-infinite-scroll-content>
     </ion-infinite-scroll>    
-  
-    <ion-fab bottom left *ngIf=" largoListaProductos() > 1 ">
-        <button ion-fab mini (click)="scrollToTop()" color="danger">
+
+    <!-- fab placed to the top end -->
+    <!-- <ion-fab vertical="bottom" horizontal="left" mini slot="fixed" (click)="scrollToTop()" color="danger" *ngIf=" largoListaProductos() > 1 ">
+        <ion-fab-button>
             <ion-icon name="arrow-up"></ion-icon>
-        </button>    
-    </ion-fab>
+        </ion-fab-button>
+    </ion-fab> -->
 
 </ion-content>
