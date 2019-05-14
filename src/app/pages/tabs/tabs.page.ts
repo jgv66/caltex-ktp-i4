@@ -17,11 +17,13 @@ export class TabsPage {
   constructor( public event: Events,
                public detectorRef: ChangeDetectorRef ) {
 
-      event.subscribe('cart:updated', _badgeValue => {
-        console.log( _badgeValue );
-        this.nItemes = _badgeValue;
-        detectorRef.detectChanges();
-      });
+    event.subscribe('cart:updated', _badgeValue => {
+      console.log(_badgeValue);
+      // nItemes comienza en 0 (definido enla declaracion de la variable)
+      // el valor se debe incrementar cada vez que se recibe el evento
+      this.nItemes += _badgeValue;
+      detectorRef.detectChanges();
+    });
   }
-  
+
 }
