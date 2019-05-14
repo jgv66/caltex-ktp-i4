@@ -18,8 +18,8 @@ export class DatosService {
   options:  any;
 
   // puerto: CALTEX
-  url    = 'https://api.kinetik.cl/caltex-inf' ; // 'http://23.239.29.171';  // 
-  puerto = '' ;                                  // ':3050';                 //  
+  url    = 'https://api.kinetik.cl/caltex-inf' ;
+  puerto = '' ;
 
   constructor( private http: HttpClient,
                private loadingCtrl: LoadingController,
@@ -65,16 +65,16 @@ export class DatosService {
 
   /* FUNCIONES REMOTAS */
   getDataEmpresas() {   /* debo cambiarlo por GET */
-    return this.http.post( this.url + '/ktp_empresas', {}, {} );
+    return this.http.get( this.url + '/ktp_empresas_get' );
   }
   getDataRubros() {
-    return this.http.post( this.url + '/ktp_rubros', {} );
+    return this.http.get( this.url + '/ktp_rubros_get' );
   }
   getDataMarcas() {
-    return this.http.post( this.url + '/ktp_marcas', {} );
+    return this.http.get( this.url + '/ktp_marcas_get' );
   }
   getDataSuperFamilias() {   /* debo cambiarlo por GET */
-    return this.http.post( this.url + '/ktp_superfamilias', {} );
+    return this.http.get( this.url + '/ktp_superfam_get' );
   }
 
   getDataUser( proceso: any, email: any, clave: any, empresa: any ) {

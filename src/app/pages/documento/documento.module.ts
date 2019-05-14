@@ -1,14 +1,17 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
 import { IonicModule } from '@ionic/angular';
 
-import { ImagenprodPage } from './imagenprod.page';
+import { DocumentoPage } from './documento.page';
 
 @NgModule({
   imports: [
     CommonModule,
+    FormsModule,
     IonicModule
   ],
-  declarations: [ImagenprodPage]
+  declarations: [DocumentoPage]
 })
-export class ImagenprodPageModule {}
+export class DocumentoPageModule {}

@@ -48,6 +48,7 @@ export class LoginPage implements OnInit {
     } else {
       this.datos.getDataUser( 'proalma', this.email, this.clave, this.empresa )
         .subscribe( data => {
+          console.log(data);
           const rs = data['recordsets'][0];
           if ( rs[0].KOFU ) {
             //

@@ -7,6 +7,8 @@ import { IonicModule } from '@ionic/angular';
 import { TabinicioPage } from './tabinicio.page';
 import { ImagenprodPage } from '../imagenprod/imagenprod.page';
 import { ImagenprodPageModule } from '../imagenprod/imagenprod.module';
+import { ClientePage } from '../cliente/cliente.page';
+import { ClientePageModule } from '../cliente/cliente.module';
 
 const routes: Routes = [
   {
@@ -16,13 +18,14 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  entryComponents: [ImagenprodPage],
+  entryComponents: [ImagenprodPage, ClientePage],
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
-    ImagenprodPageModule
+    ImagenprodPageModule,
+    ClientePageModule
   ],
   declarations: [TabinicioPage]
 })

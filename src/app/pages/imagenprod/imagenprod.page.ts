@@ -1,5 +1,4 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { BuscarProductosPage } from '../buscar-productos/buscar-productos.page';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -17,7 +16,7 @@ export class ImagenprodPage implements OnInit {
   ngOnInit() {
   }
 
-  regresar() {
+  salir() {
     this.modalCtrl.dismiss();
   }
 }

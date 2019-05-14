@@ -1,8 +1,10 @@
-import { Component, OnInit  } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DatosService } from 'src/app/services/datos.service';
 import { FuncionesService } from 'src/app/services/funciones.service';
-import { AlertController, ModalController } from '@ionic/angular';
+import { AlertController, ModalController, IonContent, Events } from '@ionic/angular';
 import { ImagenprodPage } from '../imagenprod/imagenprod.page';
+import { ClientePage } from '../cliente/cliente.page';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 
 @Component({
   selector: 'app-tabinicio',
@@ -10,6 +12,8 @@ import { ImagenprodPage } from '../imagenprod/imagenprod.page';
   styleUrls: ['./tabinicio.page.scss'],
 })
 export class TabinicioPage implements OnInit {
+
+  @ViewChild(IonContent) content: IonContent;
 
   lScrollInfinito = false;
   listaProductos  = [];
@@ -37,8 +41,10 @@ export class TabinicioPage implements OnInit {
   config_orden    = undefined;
   config_imagenes = true;
 
-  constructor( private datos: DatosService,
+  constructor( private datos: DatosService, /*  private router: Router,*/
+               public  event: Events,
                private funciones: FuncionesService,
+               private barcode:   BarcodeScanner,
                private modalCtrl: ModalController,
                private alertCtrl: AlertController ) {
     this.filtrosVarios      = false;
@@ -51,32 +57,42 @@ export class TabinicioPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.firstcall = false;
+    if ( !this.firstcall ) {
+      this.datos.readDatoLocal( 'KTP_cliente' ).then( dato => { this.cliente = dato; } );
+    } else {
+      this.firstcall = false;
+    }
   }
 
   ngOnInit() {
     this.datos.getDataMarcas().subscribe( data => this.marcas = data['marcas'] );
     this.datos.getDataSuperFamilias().subscribe( data => this.superfamilias = data['superfamilias'] );
     this.getVariablesLocales();
-    // this.datos.readDatoLocal( 'KTP_usuario').then( dato => { this.usuario = dato;
-    //                                                          this.nombreEmpresa = dato.RAZONSOCIAL; } );
   }
 
-  inicializa() {}
+  getVariablesLocales() {
+    this.datos.readDatoLocal( 'KTP_empresa' ).then( dato => { this.nombreEmpresa   = dato; } );
+    this.datos.readDatoLocal( 'KTP_usuario' ).then( dato => { this.usuario         = dato; } );
+    this.datos.readDatoLocal( 'KTP_precio'  ).then( dato => { this.config_precio   = ( dato === undefined ) ? 'no' : dato ; } );
+    this.datos.readDatoLocal( 'KTP_stock'   ).then( dato => { this.config_stock    = ( dato === undefined ) ? 'no' : dato ; } );
+    this.datos.readDatoLocal( 'KTP_occ'     ).then( dato => { this.config_occ      = ( dato === undefined ) ? 'no' : dato ; } );
+    this.datos.readDatoLocal( 'KTP_orden'   ).then( dato => { this.config_orden    = ( dato === undefined ) ? 'CODIGO' : dato ; } );
+    this.datos.readDatoLocal( 'KTP_imagenes').then( dato => { this.config_imagenes = ( dato === undefined ) ? true : dato ; } );
+  }
 
   async scanBarcode() {
-    // try {
-    //   await this.barcode.scan()
-    //             .then( barcodeData => {
-    //                   this.codproducto = barcodeData.text.trim();
-    //                   this.descripcion = '';
-    //                   this.aBuscarProductos( 1 );
-    //             }, (err) => {
-    //                 // An error occurred
-    //             });
-    // } catch(error) {
-    //   console.error(error);
-    // } 
+    try {
+      await this.barcode.scan()
+                .then( barcodeData => {
+                      this.codproducto = barcodeData.text.trim();
+                      this.descripcion = '';
+                      this.aBuscarProductos( 1 );
+                }, (err) => {
+                    // An error occurred
+                });
+    } catch(error) {
+      console.error(error);
+    }
   }
 
   aBuscarProductos( xdesde?, infiniteScroll? ) {
@@ -98,10 +114,9 @@ export class TabinicioPage implements OnInit {
           this.offset += this.scrollSize ;
       }
       //
-
       const listap = ( this.usuario.LISTACLIENTE !== undefined && this.usuario.LISTACLIENTE !== this.usuario.LISTAMODALIDAD )
                      ? this.usuario.LISTACLIENTE : this.usuario.LISTAMODALIDAD;
-
+      //
       this.datos.getDataSp( '/ktp_buscarProductos',
                             false,
                             {
@@ -125,82 +140,58 @@ export class TabinicioPage implements OnInit {
                                 this.revisaExitooFracaso( data, xdesde, infiniteScroll ); },
                       err  => { this.funciones.descargaEspera();
                                 this.funciones.msgAlert( 'ATENCION', err );  }
-                    )
+                    );
     }
   }
   revisaExitooFracaso( data: any, xdesde: any, infiniteScroll?: any ) {
     const rs = data['data'];
-
-    if ( rs === undefined || rs.data === 'error en la consulta' ) {
+    if ( data['data'] === undefined || data['data'] === 'error en la consulta' || data['data'] === [] ) {
       this.funciones.msgAlert('ATENCION', 'Su búsqueda no tiene resultados. Intente con otros datos.');
-
     } else {
       //
-      this.listaProductos = ( this.offset === 0 ) ? rs : this.listaProductos.concat(rs);
-
+      this.listaProductos = ( this.offset === 0 ) ? rs : this.listaProductos.concat(data['data']);
       // aqui detengo el scroll
       if ( infiniteScroll ) {
         infiniteScroll.target.complete();
       }
       //
-      if ( rs.length < 20  )  {
+      if ( data['data'].length < 20  )  {
         this.lScrollInfinito = false;
       } else if ( xdesde === 1 ) {
         this.lScrollInfinito = true ;
       }
       // revisar ecuaciones
-      let i = 0;
-      this.listaProductos.forEach( fila => {
-        // console.log("ecu_max1",fila.ecu_max1,( fila.ecu_max1 != '' ) );
-        if ( fila.ecu_max1 !== '' ) {
-            // try {
-            //   // console.log( "adentro", this.baseLocal.varCliente[0][fila.ecu_max1] );
-            //   if ( this.baseLocal.varCliente[0][fila.ecu_max1] != undefined ) {
-            //     let x = parseFloat( this.baseLocal.varCliente[0][fila.ecu_max1] );
-            //     // primera unidad
-            //     this.listaProductos[i].descuentomax = x;
-            //     this.listaProductos[i].preciomayor  = Math.round( this.listaProductos[i].precio-( this.listaProductos[i].precio*(x/100) ) );
-            //     this.listaProductos[i].dsctovalor   = Math.round( this.listaProductos[i].precio*(x/100) );
-            //     // segunda unidad
-            //     this.listaProductos[i].descuentomax2 = x;
-            //     this.listaProductos[i].preciomayor2  = Math.round( this.listaProductos[i].precio2-( this.listaProductos[i].precio2*(x/100) ) );
-            //     this.listaProductos[i].dsctovalor2   = Math.round( this.listaProductos[i].precio2*(x/100) );
-            //     // ecuacion a vacio !!
-            //     this.listaProductos[i].ecu_max1 = '';
-            //   }
-            // } catch {
-            //   // console.log( "de salida", fila.codigo );
-            // }
-        }
-        i++;
-      } );
+      // let i = 0;
+      // this.listaProductos.forEach( fila => {
+      //   console.log( 'ecu_max1', fila.ecu_max1, ( fila.ecu_max1 !== '' ) );
+      //   if ( fila.ecu_max1 !== '' ) {
+      //       try {
+      //          console.log( 'adentro', this.baseLocal.varCliente[0][fila.ecu_max1] );
+      //         if ( this.baseLocal.varCliente[0][fila.ecu_max1] !== undefined ) {
+      //           let x = parseFloat( this.baseLocal.varCliente[0][fila.ecu_max1] );
+      //           // primera unidad
+      //           this.listaProductos[i].descuentomax = x;
+      //           this.listaProductos[i].preciomayor  = Math.round( this.listaProductos[i].precio-( this.listaProductos[i].precio*(x/100) ) );
+      //           this.listaProductos[i].dsctovalor   = Math.round( this.listaProductos[i].precio*(x/100) );
+      //           // ecuacion a vacio !!
+      //           this.listaProductos[i].ecu_max1 = '';
+      //         }
+      //       } catch {
+      //         // console.log( "de salida", fila.codigo );
+      //       }
+      //   }
+      //   i++;
+      // } );
     }
   }
 
   async imagenGrande( producto ) {
-    // this.navCtrl.push( ImagenProductoPage, { codigo: producto.codigosincolor } );
-    const bigimg = await this.modalCtrl.create({
+    const big_img = await this.modalCtrl.create({
       component: ImagenprodPage,
       componentProps: { imagen:        producto.codigosincolor,
                         codigotecnico: producto.codigotec }
     });
-    await bigimg.present();
-  }
-
-  infoDelProducto( producto, tipocon ) {
-    // this.navCtrl.push( InfoproductoPage, { producto: producto, tipocon: tipocon, usuario: this.usuario } );
-  }
-
-  agregarAlCarro( producto, cliente ) {
-    // this.funciones.pideCantidad( producto, cliente, this.usuario );
-  }
-
-  ConfiguracionLocal(){
-    // this.navCtrl.push( MenuSeteoPage, { usuario: this.usuario } ) ;
-  }
-
-  masDatos( infiniteScroll: any ) {
-    this.aBuscarProductos( 0, infiniteScroll );
+    await big_img.present();
   }
 
   imagenOnOff() {
@@ -216,21 +207,33 @@ export class TabinicioPage implements OnInit {
     }
   }
 
-  largoListaProductos() {
-    return this.listaProductos.length;
+  masDatos( infiniteScroll: any ) {
+    this.aBuscarProductos( 0, infiniteScroll );
   }
 
-  limpiarCliente() {
-    // const confirm = this.alertCtrl.create({
-    //   title: 'Limpiar datos',
-    //   message: 'Iniciará búsquedas sin mencionar a cliente y no podrá agregar al carro sin este dato. Desea limpiar los datos del cliente activo?',
-    //   buttons: [
-    //               { text: 'No, gracias', handler: () => { null } },
-    //               { text: 'Sí, limpiar', handler: () => { this.cliente = this.funciones.initCliente(); 
-    //                                                       this.funciones.guardaUltimoCliente( this.cliente ); } }
-    //            ]
-    // });
-    // confirm.present();
+  scrollToTop() {
+    this.content.scrollToTop(400);
+  }
+  ionViewDidEnter(){
+    this.scrollToTop();
+  }
+
+  async Cliente() {
+    const buscar = await this.modalCtrl.create({
+      component: ClientePage,
+    });
+    await buscar.present();
+
+    /* al salir con datos, los dejará en data y guardaré en memoria */
+    const { data } = await buscar.onDidDismiss();
+    // console.log(data);
+    if ( data ) {
+      this.cliente = data;
+    }
+  }
+
+  largoListaProductos() {
+    return this.listaProductos.length;
   }
 
   limpiarTextos( caso: number ) {
@@ -241,52 +244,47 @@ export class TabinicioPage implements OnInit {
     }
   }
 
-  scrollToTop() {
-    // this.content.scrollToTop(1500);
-  }
-  
-
-  cambiaDescuento( producto ) {
-    // let dvend   = producto.dsctovend;
-    // let prompt  = this.alertCtrl.create({
-    //   title:   "Descto. Máximo : "+producto.descuentomax.toString()+"%",
-    //   message: "Ingrese el nuevo descuento a utilizar.",
-    //   inputs:  [ { name: "dvend", placeholder: dvend } ],
-    //   buttons: [
-    //     { text: 'Salir',   handler: data => { null } },
-    //     { text: 'Cambiar', handler: data => { 
-    //       if ( data.dvend < 0 ) {
-    //         this.funciones.msgAlert('ATENCION','Descuento digitado está incorrecto. Intente con otro valor.');
-    //       } else if ( data.dvend > producto.descuentomax && this.usuario.puedemodifdscto != true ) {
-    //           this.funciones.msgAlert('ATENCION','Descuento digitado está incorrecto. Intente con otro valor.');
-    //       } else {
-    //         producto.dsctovend    = data.dvend;
-    //         producto.preciomayor  = Math.round((producto.precio-(producto.precio*data.dvend/100)));
-    //         producto.dsctovalor   = producto.precio - producto.preciomayor;
-    //       }
-    //     } }
-    //   ]
-    // });
-    // prompt.present();
+  async cambiaDescuento( producto ) {
+    const dvend = producto.dsctovend;
+    const prompt  = await this.alertCtrl.create({
+      header:  'Descto. Máximo : ' + producto.descuentomax.toString() + '%',
+      message: 'Ingrese el nuevo descuento a utilizar.',
+      inputs:  [ {  name: 'dvend',
+                    placeholder: dvend } ],
+      buttons: [
+        { text: 'Salir',   handler: data => {} },
+        { text: 'Cambiar', handler: data => {
+          if ( data.dvend < 0 ) {
+            this.funciones.msgAlert( 'ATENCION', 'Descuento digitado está incorrecto. Intente con otro valor.' );
+          } else if ( data.dvend > producto.descuentomax && this.usuario.puedemodifdscto !== true ) {
+              this.funciones.msgAlert('ATENCION', 'Descuento digitado está incorrecto. Intente con otro valor.' );
+          } else {
+            producto.dsctovend    = data.dvend;
+            // producto.preciomayor  = Math.round((producto.precio - (producto.precio * data.dvend / 100)));
+            // producto.dsctovalor   = producto.precio - producto.preciomayor;
+          }
+        } }
+      ]
+    });
+    await prompt.present();
   }
 
-  PresionaryCopiar( event, producto ) {
-    // //
-    // let texto = '';
-    // // 
-    // texto += 'Código : '+producto.codigo+'\n';
-    // texto += 'Descripcion : '+producto.descripcion+'\n' ;
-    // texto += 'Bodega ('+producto.bodega.trim()+') : '+producto.nombrebodega+'\n' ;
-    // //
-    // if ( producto.preciomayor > 0 ) {
-    //     texto += 'Precio '+producto.tipolista+' : '+producto.preciomayor.toLocaleString()+'\n\n' ;
-    // }
-    // texto +="http://www.grupocaltex.cl/imagenes/fotos18/"+producto.codigosincolor.trim()+".jpg"+'\n' ;
-    // //
-    // this.clipboard.copy( texto );
-    // //
-    // this.funciones.muestraySale("Copiado al porta-papeles...",1,'middle');
-    // //
+  async agregarAlCarro( producto ) {
+    const cantidad = '1';
+    const prompt = await this.alertCtrl.create({
+      header:  'Stock Bodega : ' + producto.saldo_ud1.toString(),
+      message: 'Ingrese la cantidad a solicitar de este producto. ' +
+               'No debe sobrepasar el saldo actual ni lo pedido si ya existe en el carro. El sistema lo validará',
+      inputs:  [ { name: 'cantidad',
+                   placeholder: cantidad } ],
+      buttons: [
+        { text: 'Cancelar', handler: data => {} },
+        { text: 'Guardar',  handler: data => { producto.apedir = parseInt( data.cantidad, 10 ) || 1 ;
+                                               this.event.publish('cart:updated', this.funciones.cuantosProductosEnCarroTengo() );
+                                               this.funciones.Add2Cart( producto, this.cliente, this.usuario ); } }
+      ]
+    });
+    await prompt.present();
   }
 
   async filtros() {
@@ -398,16 +396,6 @@ export class TabinicioPage implements OnInit {
     } else {
       this.datos.saveDatoLocal( 'KTP_orden', 'CODIGO' );
     }
-  }
-
-  getVariablesLocales() {
-    this.datos.readDatoLocal( 'KTP_empresa' ).then( dato => { this.nombreEmpresa   = dato; } );
-    this.datos.readDatoLocal( 'KTP_usuario' ).then( dato => { this.usuario         = dato; } );
-    this.datos.readDatoLocal( 'KTP_precio'  ).then( dato => { this.config_precio   = ( dato === undefined ) ? 'no' : dato ; } );
-    this.datos.readDatoLocal( 'KTP_stock'   ).then( dato => { this.config_stock    = ( dato === undefined ) ? 'no' : dato ; } );
-    this.datos.readDatoLocal( 'KTP_occ'     ).then( dato => { this.config_occ      = ( dato === undefined ) ? 'no' : dato ; } );
-    this.datos.readDatoLocal( 'KTP_orden'   ).then( dato => { this.config_orden    = ( dato === undefined ) ? 'CODIGO' : dato ; } );
-    this.datos.readDatoLocal( 'KTP_imagenes').then( dato => { this.config_imagenes = ( dato === undefined ) ? true : dato ; } );
   }
 
 }

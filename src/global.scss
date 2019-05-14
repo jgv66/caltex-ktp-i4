@@ -19,3 +19,14 @@ ion-button {
     float: left;
     margin-left: 7px;
 }
+
+ion-toast {
+    --max-width: 75%;
+    --background: var( --ion-color-dark-tint );
+    text-align: center;
+    /* nuevos*/
+    --border-radius: 20px;
+    --border-width: 5px;
+    --border-style: double;
+}
+
