@@ -8,11 +8,11 @@
     </ion-tab-button>
 
     <ion-tab-button tab="tabfiltros">
-        <ion-badge *ngIf=" nItemes " [color]=" howNamyItems() > 0 ? 'danger' : 'primary' ">{{ nItemes }}</ion-badge>       
+        <ion-badge *ngIf="nItemes" [color]=" nItemes > 0 ? 'danger' : 'primary' ">{{ nItemes }}</ion-badge>
         <ion-icon name="cart"></ion-icon>
         <ion-label>Mi Carrito</ion-label>
     </ion-tab-button>
-  
+
     <ion-tab-button tab="tabsalida">
         <ion-icon name="exit"></ion-icon>
         <ion-label>Salir</ion-label>
