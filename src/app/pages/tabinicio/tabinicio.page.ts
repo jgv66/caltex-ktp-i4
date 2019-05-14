@@ -279,9 +279,21 @@ export class TabinicioPage implements OnInit {
                    placeholder: cantidad } ],
       buttons: [
         { text: 'Cancelar', handler: data => {} },
-        { text: 'Guardar',  handler: data => { producto.apedir = parseInt( data.cantidad, 10 ) || 1 ;
-                                               this.event.publish('cart:updated', this.funciones.cuantosProductosEnCarroTengo() );
-                                               this.funciones.Add2Cart( producto, this.cliente, this.usuario ); } }
+        {
+          text: 'Guardar', handler: data => {
+            producto.apedir = parseInt(data.cantidad, 10) || 1;
+            //  this.event.publish('cart:updated', this.funciones.cuantosProductosEnCarroTengo() ); // linea original
+
+            // la logica de la llamada a esta funcion debiera ser  enviar al carro la cantidad que se desea solicitar
+            // Agregar validacion sobre producto.saldo_ud1 para no sobrepasar el saldo,
+            // Buscar como deshabilitar el boton de agregar al carro en el caso de saldo cero
+
+            // No emitir este evento si no se cumplen las validaciones de stock
+            // No ejecutar la accion si no se cumplen las validaciones de stock
+            this.event.publish('cart:updated', producto.apedir );
+            this.funciones.Add2Cart(producto, this.cliente, this.usuario);
+          }
+        }
       ]
     });
     await prompt.present();
