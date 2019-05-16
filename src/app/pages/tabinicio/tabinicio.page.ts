@@ -143,13 +143,24 @@ export class TabinicioPage implements OnInit {
                     );
     }
   }
+
   revisaExitooFracaso( data: any, xdesde: any, infiniteScroll?: any ) {
+    let largoActual = 0;
     const rs = data['data'];
     if ( data['data'] === undefined || data['data'] === 'error en la consulta' || data['data'] === [] ) {
       this.funciones.msgAlert('ATENCION', 'Su búsqueda no tiene resultados. Intente con otros datos.');
     } else {
       //
-      this.listaProductos = ( this.offset === 0 ) ? rs : this.listaProductos.concat(data['data']);
+      // this.listaProductos = ( this.offset === 0 ) ? rs : this.listaProductos.concat(data['data']);
+      // codigo desde: https://dev.to/uilicious/javascript-array-push-is-945x-faster-than-array-concat-1oki
+      if ( this.offset === 0 ) {
+        largoActual = 0;
+        this.listaProductos = rs;
+      } else {
+        largoActual = this.listaProductos.length;
+        this.listaProductos.push(...rs);
+      }
+
       // aqui detengo el scroll
       if ( infiniteScroll ) {
         infiniteScroll.target.complete();
@@ -160,29 +171,37 @@ export class TabinicioPage implements OnInit {
       } else if ( xdesde === 1 ) {
         this.lScrollInfinito = true ;
       }
-      // revisar ecuaciones
-      // let i = 0;
-      // this.listaProductos.forEach( fila => {
-      //   console.log( 'ecu_max1', fila.ecu_max1, ( fila.ecu_max1 !== '' ) );
-      //   if ( fila.ecu_max1 !== '' ) {
-      //       try {
-      //          console.log( 'adentro', this.baseLocal.varCliente[0][fila.ecu_max1] );
-      //         if ( this.baseLocal.varCliente[0][fila.ecu_max1] !== undefined ) {
-      //           let x = parseFloat( this.baseLocal.varCliente[0][fila.ecu_max1] );
-      //           // primera unidad
-      //           this.listaProductos[i].descuentomax = x;
-      //           this.listaProductos[i].preciomayor  = Math.round( this.listaProductos[i].precio-( this.listaProductos[i].precio*(x/100) ) );
-      //           this.listaProductos[i].dsctovalor   = Math.round( this.listaProductos[i].precio*(x/100) );
-      //           // ecuacion a vacio !!
-      //           this.listaProductos[i].ecu_max1 = '';
-      //         }
-      //       } catch {
-      //         // console.log( "de salida", fila.codigo );
-      //       }
-      //   }
-      //   i++;
-      // } );
+      // revisar ecuaciones si cliente está definido
+      if ( this.cliente !== undefined ) {
+          // variables del cliente
+          this.datos.readDatoLocal( 'KTP_variables_cliente' )
+              .then( dato => this.ForSobreItemes( largoActual, dato ) );
+      }
     }
+  }
+
+  private ForSobreItemes( largoActual, dato ) {
+    //
+    for (let index = largoActual; index < this.listaProductos.length; index++) {
+      const element = this.listaProductos[index];
+      if ( element.ecu_max1 !== '' ) {
+        try {
+          console.log( 'adentro', dato[0][element.ecu_max1], element.ecu_max1 );
+          // if ( this.baseLocal.varCliente[0][fila.ecu_max1] !== undefined ) {
+          //   let x = parseFloatLocal.varCliente[0][fila.ecu_max1] );
+          //   // primera unidad
+          //   this.listaProductos[i].descuentomax = x;
+          //   this.listaProductos[i].preciomayor  = Math.round( this.listaProductos[i].precio-( this.listaProductos[i].precio*(x/100) ) );
+          //   this.listaProductos[i].dsctovalor   = Math.round( this.listaProductos[i].precio*(x/100) );
+          //   // ecuacion a vacio !!
+          //   this.listaProductos[i].ecu_max1 = '';
+          // }
+        } catch {
+          // console.log( "de salida", fila.codigo );
+        }
+      }
+    }
+
   }
 
   async imagenGrande( producto ) {
@@ -229,6 +248,34 @@ export class TabinicioPage implements OnInit {
     // console.log(data);
     if ( data ) {
       this.cliente = data;
+      // limpiar datos
+      this.offset          = 0 ;
+      this.listaProductos  = [];
+      this.lScrollInfinito = true;
+      // variables asociadas
+      this.variablesCliente();
+    //
+    }
+  }
+
+  variablesCliente() {
+    this.datos.getDataSp( '/ktp_variables',
+                          false,
+                          { cliente: this.cliente.codigo,
+                            usuario: this.usuario.KOFU,
+                            empresa: this.usuario.EMPRESA } )
+              .subscribe( data => { this.revisaEoFVariables( data ); },
+                          err  => { this.funciones.msgAlert( 'ATENCION', err );  });
+  }
+  revisaEoFVariables( data ) {
+    //
+    const rs = data['variables'];
+    //
+    if ( rs === undefined || rs.length === 0 ) {
+      // this.funciones.muestraySale('ATENCION : Código de cliente no presenta documentos impagos.', 2 );
+    } else {
+      //console.log( rs[0] );
+      this.datos.saveDatoLocal( 'KTP_variables_cliente', rs[0] );
     }
   }
 
@@ -282,16 +329,10 @@ export class TabinicioPage implements OnInit {
         {
           text: 'Guardar', handler: data => {
             producto.apedir = parseInt(data.cantidad, 10) || 1;
-            //  this.event.publish('cart:updated', this.funciones.cuantosProductosEnCarroTengo() ); // linea original
-
-            // la logica de la llamada a esta funcion debiera ser  enviar al carro la cantidad que se desea solicitar
             // Agregar validacion sobre producto.saldo_ud1 para no sobrepasar el saldo,
             // Buscar como deshabilitar el boton de agregar al carro en el caso de saldo cero
-
-            // No emitir este evento si no se cumplen las validaciones de stock
-            // No ejecutar la accion si no se cumplen las validaciones de stock
-            this.event.publish('cart:updated', producto.apedir );
             this.funciones.Add2Cart(producto, this.cliente, this.usuario);
+            this.event.publish('micarrito:actualizado', 1 );
           }
         }
       ]

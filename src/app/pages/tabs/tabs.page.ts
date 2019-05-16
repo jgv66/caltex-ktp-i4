@@ -1,5 +1,4 @@
 import { Component, ChangeDetectorRef  } from '@angular/core';
-//import { Events } from '@ionic-angular';
 import { FuncionesService } from '../../services/funciones.service';
 import { Events } from '@ionic/angular';
 
@@ -10,18 +9,17 @@ import { Events } from '@ionic/angular';
 })
 export class TabsPage {
 
-  // @ViewChild(tabfiltros) tabs: TabsPage;
-
   nItemes = 0;
 
-  constructor( public event: Events,
-               public detectorRef: ChangeDetectorRef ) {
+  constructor( public  event: Events,
+               public  detectorRef: ChangeDetectorRef,
+               private funciones: FuncionesService ) {
 
-    event.subscribe('cart:updated', _badgeValue => {
-      console.log(_badgeValue);
+    event.subscribe('micarrito:actualizado', _badgeValue => {
+      console.log('dentro de TabsPage', _badgeValue);
       // nItemes comienza en 0 (definido enla declaracion de la variable)
       // el valor se debe incrementar cada vez que se recibe el evento
-      this.nItemes += _badgeValue;
+      this.nItemes = this.funciones.cuantosProductosEnCarroTengo();
       detectorRef.detectChanges();
     });
   }

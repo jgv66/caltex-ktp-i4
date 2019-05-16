@@ -8,9 +8,9 @@ const routes: Routes = [
     path: '',
     component: TabsPage,
     children: [
-      { path: 'tabinicio' ,  children: [ { path: '', loadChildren: '../tabinicio/tabinicio.module#TabinicioPageModule'    }] },
-      { path: 'tabfiltros',  children: [ { path: '', loadChildren: '../tabfiltros/tabfiltros.module#TabfiltrosPageModule' }] },
-      { path: 'tabsalida',  children:  [ { path: '', loadChildren: '../tabsalida/tabsalida.module#TabsalidaPageModule'    }] },
+      { path: 'tabinicio' ,   children: [ { path: '', loadChildren: '../tabinicio/tabinicio.module#TabinicioPageModule'          }] },
+      { path: 'tabmicarrito', children: [ { path: '', loadChildren: '../tabmicarrito/tabmicarrito.module#TabmicarritoPageModule' }] },
+      { path: 'tabsalida',    children: [ { path: '', loadChildren: '../tabsalida/tabsalida.module#TabsalidaPageModule'          }] },
       { path: '', redirectTo: '/tabs/tabinicio',  pathMatch: 'full' },
     ]
   },

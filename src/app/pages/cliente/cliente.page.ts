@@ -66,7 +66,6 @@ export class ClientePage implements OnInit {
               .subscribe( data => { this.revisaExitooFracaso( data ); },
                           err  => { this.funciones.msgAlert( 'ATENCION', err );  });
   }
-
   revisaExitooFracaso( data ) {
     //
     const rs = data['data'];

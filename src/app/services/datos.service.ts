@@ -64,6 +64,9 @@ export class DatosService {
   }
 
   /* FUNCIONES REMOTAS */
+  getNewId() {
+    return this.http.get( this.url + '/ktp_newid' );
+  }
   getDataEmpresas() {   /* debo cambiarlo por GET */
     return this.http.get( this.url + '/ktp_empresas_get' );
   }
@@ -77,9 +80,9 @@ export class DatosService {
     return this.http.get( this.url + '/ktp_superfam_get' );
   }
 
-  getDataUser( proceso: any, email: any, clave: any, empresa: any ) {
+  getDataUser( proceso: any, email: any, clave: any, empresa: any, uuid: any ) {
     this.showLoading();
-    const datos = { rutocorreo: email, clave: clave, empresa: empresa };
+    const datos = { rutocorreo: email, clave: clave, empresa: empresa, uuid: uuid };
     const body  = { sp: 'ksp_buscarUsuario', datos: datos };
     return this.http.post( this.url + this.puerto + '/' + proceso, body )
       .pipe( tap( value =>  { if ( this.loading ) { this.loading.dismiss(); } }) );
