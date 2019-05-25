@@ -2,7 +2,6 @@ import { Component, OnInit, Input } from '@angular/core';
 import { FuncionesService } from 'src/app/services/funciones.service';
 import { DatosService } from 'src/app/services/datos.service';
 import { Router } from '@angular/router';
-import { ObjectUnsubscribedError } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -56,7 +55,7 @@ export class LoginPage implements OnInit {
     if ( this.email === '' || this.clave === '' || this.empresa === ''  ) {
       this.funciones.msgAlert('ATENCION', 'Debe indicar: Email, clave y empresa para iniciar.' );
     } else {
-      this.datos.getDataUser( 'proalma', this.email, this.clave, this.empresa, this.uuid )
+      this.datos.getDataUser( 'proalma', this.email, this.clave, this.empresa, this.uuid, 'ktp' )
         .subscribe( data => {
           // console.log(data);
           const rs = data['recordsets'][0];

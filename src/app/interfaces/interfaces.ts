@@ -22,3 +22,16 @@ export interface Carrito {
     concompras: number;
 }
 
+export interface Cliente {
+    codigo: string;
+    sucursal: string;
+    razonsocial: string;
+    direccion: string;
+    ciudad: string;
+    comuna: string;
+    vendedor: string;
+    nombrevendedor: string;
+    listaprecios: string;
+    nombrelista: string;
+    email: string;
+}

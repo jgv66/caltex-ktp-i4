@@ -5,6 +5,7 @@ import { AlertController, ModalController, IonContent, Events } from '@ionic/ang
 import { ImagenprodPage } from '../imagenprod/imagenprod.page';
 import { ClientePage } from '../cliente/cliente.page';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { Cliente } from '../../interfaces/interfaces';
 
 @Component({
   selector: 'app-tabinicio',
@@ -21,7 +22,6 @@ export class TabinicioPage implements OnInit {
   codproducto     ;
   descripcion     ;
   usuario         ;
-  Carro           = [];
   results         = {};
   config:         any;         // Configuracion;
   firstcall       = false;
@@ -34,7 +34,7 @@ export class TabinicioPage implements OnInit {
   Importados      = [];
   nombreEmpresa   ;
   scrollSize      = 20;
-  cliente         = undefined;
+  cliente         = undefined ;
   config_precio   = undefined;
   config_stock    = undefined;
   config_occ      = undefined;
@@ -65,6 +65,7 @@ export class TabinicioPage implements OnInit {
   }
 
   ngOnInit() {
+    this.funciones.initCarro();
     this.datos.getDataMarcas().subscribe( data => this.marcas = data['marcas'] );
     this.datos.getDataSuperFamilias().subscribe( data => this.superfamilias = data['superfamilias'] );
     this.getVariablesLocales();
@@ -90,7 +91,7 @@ export class TabinicioPage implements OnInit {
                 }, (err) => {
                     // An error occurred
                 });
-    } catch(error) {
+    } catch (error) {
       console.error(error);
     }
   }
@@ -151,6 +152,7 @@ export class TabinicioPage implements OnInit {
       this.funciones.msgAlert('ATENCION', 'Su búsqueda no tiene resultados. Intente con otros datos.');
     } else {
       //
+      console.log( rs );
       // this.listaProductos = ( this.offset === 0 ) ? rs : this.listaProductos.concat(data['data']);
       // codigo desde: https://dev.to/uilicious/javascript-array-push-is-945x-faster-than-array-concat-1oki
       if ( this.offset === 0 ) {
@@ -186,18 +188,18 @@ export class TabinicioPage implements OnInit {
       const element = this.listaProductos[index];
       if ( element.ecu_max1 !== '' ) {
         try {
-          console.log( 'adentro', dato[0][element.ecu_max1], element.ecu_max1 );
-          // if ( this.baseLocal.varCliente[0][fila.ecu_max1] !== undefined ) {
-          //   let x = parseFloatLocal.varCliente[0][fila.ecu_max1] );
-          //   // primera unidad
-          //   this.listaProductos[i].descuentomax = x;
-          //   this.listaProductos[i].preciomayor  = Math.round( this.listaProductos[i].precio-( this.listaProductos[i].precio*(x/100) ) );
-          //   this.listaProductos[i].dsctovalor   = Math.round( this.listaProductos[i].precio*(x/100) );
-          //   // ecuacion a vacio !!
-          //   this.listaProductos[i].ecu_max1 = '';
-          // }
+          if ( dato[element.ecu_max1] !== undefined ) {
+            const x = dato[element.ecu_max1] ;
+            // primera unidad
+            this.listaProductos[index].descuentomax = x;
+            // tslint:disable-next-line: max-line-length
+            this.listaProductos[index].preciomayor  = Math.round( this.listaProductos[index].precio - ( this.listaProductos[index].precio * (x / 100) ) );
+            this.listaProductos[index].dsctovalor   = Math.round( this.listaProductos[index].precio * (x / 100) );
+            // ecuacion a vacio !!
+            this.listaProductos[index].ecu_max1 = '';
+          }
         } catch {
-          // console.log( "de salida", fila.codigo );
+           console.log( 'problemas con ecuacion', element );
         }
       }
     }
@@ -233,7 +235,7 @@ export class TabinicioPage implements OnInit {
   scrollToTop() {
     this.content.scrollToTop(400);
   }
-  ionViewDidEnter(){
+  ionViewDidEnter() {
     this.scrollToTop();
   }
 
@@ -274,7 +276,7 @@ export class TabinicioPage implements OnInit {
     if ( rs === undefined || rs.length === 0 ) {
       // this.funciones.muestraySale('ATENCION : Código de cliente no presenta documentos impagos.', 2 );
     } else {
-      //console.log( rs[0] );
+      // console.log( rs[0] );
       this.datos.saveDatoLocal( 'KTP_variables_cliente', rs[0] );
     }
   }
@@ -306,9 +308,9 @@ export class TabinicioPage implements OnInit {
           } else if ( data.dvend > producto.descuentomax && this.usuario.puedemodifdscto !== true ) {
               this.funciones.msgAlert('ATENCION', 'Descuento digitado está incorrecto. Intente con otro valor.' );
           } else {
-            producto.dsctovend    = data.dvend;
-            // producto.preciomayor  = Math.round((producto.precio - (producto.precio * data.dvend / 100)));
-            // producto.dsctovalor   = producto.precio - producto.preciomayor;
+            producto.dsctovend   = data.dvend;
+            producto.preciomayor = Math.round((producto.precio - (producto.precio * data.dvend / 100)));
+            producto.dsctovalor  = producto.precio - producto.preciomayor;
           }
         } }
       ]

@@ -67,6 +67,27 @@ export class FuncionesService {
     await toast.present();
   }
 
+  initCarro() {
+    this.miCarrito  = [{empresa:      '',
+                        vendedor:     '',
+                        bodega:       '',
+                        sucursal:     '',
+                        cliente:      '',
+                        suc_cliente:  '',
+                        codigo:       '',
+                        descrip:      '',
+                        cantidad:     0,
+                        saldo_ud1:    0,
+                        precio:       0,
+                        preciomayor:  0,
+                        descuentomax: 0,
+                        dsctovend:    0,
+                        listapre:     '',
+                        metodolista:  '',
+                        concompras:   0 }];
+    this.misCompras = 0;
+  }
+
   aunVacioElCarrito() {
     return ( this.miCarrito.length === 1 && this.miCarrito[0].codigo === '' );
   }
@@ -147,5 +168,60 @@ export class FuncionesService {
     this.misCompras = this.miCarrito.length ;
     this.muestraySale( 'Item agregado al carro', 1, 'middle' );
   }
+
+  sumaCarrito( enBruto ) {
+    let tot = 0;
+    const largo = this.miCarrito.length;
+    for ( let i = 0 ; i < largo ; i++ ) {
+        if ( this.miCarrito[i].descuentomax <= 0 || this.miCarrito[i].descuentomax === undefined ) {
+            tot += this.miCarrito[i].cantidad * this.miCarrito[i].precio * ( (enBruto) ? 1.19 :  1 );
+        } else {
+            tot += this.miCarrito[i].cantidad * this.miCarrito[i].preciomayor * ( (enBruto) ? 1.19 :  1 );
+        }
+    }
+    return tot;
+  }
+
+  async modificaCantidad( producto, cliente ) {
+    const cantidad = producto.cantidad;
+    const prompt = await this.alertCtrl.create({
+      header:  'Stock Bodega : ' + producto.saldo_ud1.toString(),
+      message: 'Ingrese la cantidad a solicitar de este producto. ' +
+               'No debe sobrepasar el stock actual ni la suma de lo pedido. ' +
+               'El sistema lo validará.',
+      inputs:  [ { name: 'cantidad', placeholder: cantidad } ],
+      buttons: [
+        { text: 'Salir',   handler: data => {} },
+        { text: 'Cambiar !', handler: data => {
+          producto.apedir = parseInt( data.cantidad , 10 ) || 1 ;
+          const largo = this.miCarrito.length;
+          for ( let i = 0 ; i < largo ; i++ ) {
+              if ( this.miCarrito[i].codigo.trim() === producto.codigo.trim() &&
+                   this.miCarrito[i].bodega.trim() === producto.bodega.trim() ) {
+                this.miCarrito[i].cantidad = producto.apedir;
+              }
+          }
+        } }
+      ]
+    });
+    await prompt.present();
+  }
+
+  quitarDelCarro( producto ) {
+    let i = 0;
+    if ( !this.aunVacioElCarrito() ) {
+        this.miCarrito.forEach(element => {
+          if ( this.miCarrito[i].codigo === producto.codigo && this.miCarrito[i].bodega === producto.bodega ) {
+            this.miCarrito.splice(i, 1);
+          }
+          ++i;
+        });
+    }
+    if ( this.miCarrito.length === 0 ) {
+         this.miCarrito = [];
+    }
+    this.misCompras = this.miCarrito.length;
+  }
+
 }
 
