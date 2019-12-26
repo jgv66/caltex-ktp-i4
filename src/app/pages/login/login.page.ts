@@ -81,7 +81,7 @@ export class LoginPage implements OnInit {
 
   seleccionaEmpresa( event: any ) {
     this.empresa = event;
-    console.log( this.empresa );
+    //console.log( this.empresa );
   }
 
 }

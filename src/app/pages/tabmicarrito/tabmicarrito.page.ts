@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FuncionesService } from '../../services/funciones.service';
-import { DatosService } from '../../services/datos.service';
+import { Router } from '@angular/router';
 import { AlertController, ModalController } from '@ionic/angular';
+import { ObservacionesPage } from '../observaciones/observaciones.page';
+import { DatosService } from '../../services/datos.service';
 
 @Component({
   selector: 'app-tabmicarrito',
@@ -9,22 +11,24 @@ import { AlertController, ModalController } from '@ionic/angular';
   styleUrls: ['./tabmicarrito.page.scss'],
 })
 export class TabmicarritoPage implements OnInit {
-
-  private usuario       = [];
-  public  carrito       = [];
-  private cliente       = [];
-  public  totalCarrito  = 0;
-  public  textoObs      = '';
-  public  textoOcc      = '';
-  public  fechaDesp:    Date;
-
+  //
+  grabando      = false;
+  usuario: any  = [];
+  carrito       = [];
+  cliente       = [];
+  totalCarrito  = 0;
+  textoObs      = '';
+  textoOcc      = '';
+  fechaDesp:    Date;
+  //
   constructor( private funciones: FuncionesService,
-    private datos: DatosService,
-    private alertCtrl: AlertController,
-    private modalCtrl: ModalController
-    ) { }
+               private datos:     DatosService,
+               private alertCtrl: AlertController,
+               private router: Router,
+               private modalCtrl: ModalController ) {}
 
   ngOnInit() {
+    this.datos.readDatoLocal( 'KTP_usuario' ).then( dato => { this.usuario = dato; } );
   }
 
   ionViewWillEnter() {
@@ -62,45 +66,73 @@ export class TabmicarritoPage implements OnInit {
   }
 
   async observaciones() {
-    const rescataObs = await this.modalCtrl.create( ObservacionesPage, { obs: this.textoObs } );
-    rescataObs.onDidDismiss( data => {
-      if ( data.obs != undefined && data.obs != '' ) {
-         this.textoObs = data.obs;
-         this.funciones.muestraySale("Observaciones guardadas",1);
-      }
+    const rescataObs = await this.modalCtrl.create({
+        component: ObservacionesPage,
+        componentProps: { textoObs:   this.textoObs,
+                          textoOcc:   this.textoOcc,
+                          fechaDesp:  this.fechaDesp }
     });
     await rescataObs.present();
-  }
 
-  async ordenDeCompra() {
-    const prompt = await this.alertCtrl.create({
-      header:  'Orden de Compra',
-      message: 'Ingrese el número de Orden de Compra del cliente',
-      inputs:  [ { name: 'occ', placeholder: 'número-de-orden', value: this.textoOcc } ],
-      buttons: [
-        { text: 'Salir',   handler: data => {} },
-        { text: 'Guardar', handler: data => {
-          if ( data.occ === '' ) {
-            this.funciones.msgAlert('ATENCION', 'Número de Orden de Compra está vacío.');
-          } else {
-            this.textoOcc = data.occ;
-          }
-        } }
-      ]
-    });
-    await prompt.present();
-  }
-
-  async FechaSolicitaDespacho() {
-    const rescataFech = await this.modalCtrl.create( FechadespachoPage, { fecha: this.fechaDesp } );
-    rescataFech.onDidDismiss( data => {
-      console.log(data );
-      if ( data.fecha !== undefined && data.fecha !== '' ) {
-         this.fechaDesp = data.fecha;
-         this.funciones.muestraySale( 'Fecha de Despacho guardada', 1 );
+    const { data } = await rescataObs.onDidDismiss();
+    if ( data !== undefined) {
+      if ( data.obs !== undefined && data.obs !== '' ) {
+        this.textoObs = data.obs;
       }
-    });
-    await rescataFech.present();
+      if ( data.fecha !== undefined && data.fecha !== '' ) {
+        this.fechaDesp = data.fecha;
+      }
+      if ( data.occ !== undefined && data.occ !== '' ) {
+        this.textoOcc = data.occ;
+      }
+      this.funciones.muestraySale('Observaciones guardadas', 1 );
+    }
+  }
+
+  async preguntaGrabar() {
+    const confirm = await this.alertCtrl.create({
+      header:  'Grabar documento',
+      message: 'Desea grabar este pedido ?',
+      buttons: [
+                { text: 'Sí, grabar', handler: () => this.enviarCarrito() },
+                { text: 'No',  handler: () => {} }
+               ]
+      });
+      await confirm.present();
+  }
+
+  enviarCarrito() {
+    //
+    const fechaDespacho = ( this.fechaDesp ) ? this.fechaDesp.toString().substring(0, 10) : undefined ;
+    this.grabando = true;
+    //
+    this.funciones.cargaEspera();
+    this.datos.grabarDocumentos( this.carrito, this.usuario.MODALIDAD, 'NVV', this.textoObs, this.textoOcc, fechaDespacho )
+        .subscribe( data => { this.funciones.descargaEspera(); this.revisaExitooFracaso( data ); },
+                    err  => { this.funciones.descargaEspera(); this.funciones.msgAlert( 'ATENCION', 'Ocurrió un error -> ' + err ); }
+      )
+  }
+
+  private revisaExitooFracaso( data ) {
+    this.grabando = false;
+    if ( data.length === 0 ) {
+        this.funciones.msgAlert('ATENCION', 'Los datos ingresados podrían estar incorrectos. Vuelva a revisar y reintente.' );
+    } else {
+      try {
+        if ( data.resultado === 'ok' ) {
+            this.funciones.msgAlert('Documento #' + data.numero, 'Su Nro. de documento es el ' + data.numero +
+                                    '. Ya ha llegado al sistema. Una copia del documento será despachado a su correo para verificación.'+
+                                    ' Gracias por utilizar nuestro carro de compras.' );
+            this.funciones.initCarro();
+            this.router.navigate(['/tabs/tabinicio']);
+        } else {
+            this.funciones.msgAlert('ERROR', data );
+        }
+      } catch (e) {
+        this.funciones.msgAlert('ATENCION', 'Ocurrió un error al intentar guardar el documento ->' + e );
+      }
+    }
+
   }
 
 }

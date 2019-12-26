@@ -6,6 +6,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { TabmicarritoPage } from './tabmicarrito.page';
+import { ObservacionesPageModule } from '../observaciones/observaciones.module';
+import { ObservacionesPage } from '../observaciones/observaciones.page';
+import { ComponentsModule } from '../../components/components.module';
 
 const routes: Routes = [
   {
@@ -15,11 +18,14 @@ const routes: Routes = [
 ];
 
 @NgModule({
+  entryComponents: [ ObservacionesPage ],
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    ObservacionesPageModule,
+    ComponentsModule
   ],
   declarations: [TabmicarritoPage]
 })

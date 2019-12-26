@@ -107,4 +107,12 @@ export class DatosService {
     return this.http.post( this.url + this.puerto + '/ktp_prod', body );
   }
 
+  grabarDocumentos( pCarro, pModalidad, cTipodoc: string, textoObs: string, textoOcc: string, fechaDesp: string )  {
+    const accion = '/grabadocumentos';
+    const url    = this.url + this.puerto + accion;
+    const body   = { carro: pCarro, modalidad: pModalidad, tipodoc: cTipodoc, cObs: textoObs, cOcc: textoOcc, fechaDespacho: fechaDesp };
+    return this.http.post( url, body );
+    // .map( res => res.json() );
+  }
+
 }

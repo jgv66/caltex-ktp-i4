@@ -166,7 +166,7 @@ export class FuncionesService {
                               concompras:   producto.concompras });
     }
     this.misCompras = this.miCarrito.length ;
-    this.muestraySale( 'Item agregado al carro', 1, 'middle' );
+    this.muestraySale( 'Item agregado al carro', 0.5, 'middle' );
   }
 
   sumaCarrito( enBruto ) {

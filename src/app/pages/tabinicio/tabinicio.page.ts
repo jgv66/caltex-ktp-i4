@@ -5,7 +5,6 @@ import { AlertController, ModalController, IonContent, Events } from '@ionic/ang
 import { ImagenprodPage } from '../imagenprod/imagenprod.page';
 import { ClientePage } from '../cliente/cliente.page';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
-import { Cliente } from '../../interfaces/interfaces';
 
 @Component({
   selector: 'app-tabinicio',
@@ -203,7 +202,6 @@ export class TabinicioPage implements OnInit {
         }
       }
     }
-
   }
 
   async imagenGrande( producto ) {
@@ -309,6 +307,7 @@ export class TabinicioPage implements OnInit {
               this.funciones.msgAlert('ATENCION', 'Descuento digitado está incorrecto. Intente con otro valor.' );
           } else {
             producto.dsctovend   = data.dvend;
+             /* este dato posee el descuento total  */
             producto.preciomayor = Math.round((producto.precio - (producto.precio * data.dvend / 100)));
             producto.dsctovalor  = producto.precio - producto.preciomayor;
           }

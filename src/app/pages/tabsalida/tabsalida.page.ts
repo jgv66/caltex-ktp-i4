@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { FuncionesService } from '../../services/funciones.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tabsalida',
@@ -7,9 +9,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TabsalidaPage implements OnInit {
 
-  constructor() { }
+  constructor( private funciones: FuncionesService,
+               private router: Router ) { }
 
   ngOnInit() {
+  }
+
+  salirDelSistema() {
+    this.funciones.initCarro();
+    this.router.navigateByUrl( 'login' );
   }
 
 }
