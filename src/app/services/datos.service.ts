@@ -115,4 +115,14 @@ export class DatosService {
     // .map( res => res.json() );
   }
 
+  getNVVPendientes( dato: any ) {
+    const body = dato;
+    return this.http.post( this.url + this.puerto + '/ktp_nvvPendientes', body );
+  }
+
+  getDetalleNVVPendiente( dato: any ) {
+    const body = dato;
+    return this.http.post( this.url + this.puerto + '/ktp_detallepend', body );
+  }
+
 }

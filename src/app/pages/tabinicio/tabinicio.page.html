@@ -1,6 +1,6 @@
 <ion-header>
     <ion-toolbar color="primary">
-        <ion-title text-center>{{ nombreEmpresa }}</ion-title>
+        <ion-title class="ion-text-center">{{ nombreEmpresa }}</ion-title>
     </ion-toolbar>
 </ion-header>
 
@@ -8,33 +8,8 @@
 
     <ion-list>
 
-        <ion-item *ngIf=" cliente ">
-            <ion-grid>
-                <ion-row>
-                    <ion-col size="3">
-                        <ion-label text-right>Cliente :</ion-label>
-                    </ion-col>
-                    <ion-col size="8">
-                        <ion-label text-left><b>{{ cliente.codigo }}</b></ion-label>
-                    </ion-col>
-                </ion-row>
-                <ion-row *ngIf=" cliente?.sucursal ">
-                    <ion-col size="3">
-                        <ion-label text-right>Sucursal :</ion-label>
-                    </ion-col>
-                    <ion-col size="8">
-                        <ion-label text-left><b>{{ cliente.sucursal }}</b></ion-label>
-                    </ion-col>
-                </ion-row>
-                <ion-row>
-                    <ion-col size="3">
-                        <ion-label text-right>Razón Soc. :</ion-label>
-                    </ion-col>
-                    <ion-col size="8">
-                        <ion-label text-left><b>{{ cliente.razonsocial }}</b></ion-label>
-                    </ion-col>
-                </ion-row>
-            </ion-grid>
+        <ion-item *ngIf=" cliente " style="font-size: 90%;">
+            <p><b>{{ cliente.codigo }} - {{ cliente.razonsocial }}</b></p>
         </ion-item>
 
         <ion-item-group>
@@ -63,9 +38,6 @@
         <ion-grid style=' margin:3px; '>
 
             <ion-row>
-                <!-- <ion-col size="3">
-                    <ion-button expand="block" size="small" color="github" (click)="scanBarcode()" ><ion-icon slot="icon-only" name="barcode"></ion-icon></ion-button>
-                </ion-col> -->
                 <ion-col size="12">
                     <ion-button expand="block" size="small" color="primary" (click)="aBuscarProductos( 1 )">
                         <ion-icon slot="start" name="search"></ion-icon>Buscar</ion-button>
@@ -74,7 +46,7 @@
 
             <ion-row>
                 <ion-col *ngFor="let producto of listaProductos" size="12" size-lg="4" size-md="6" size-sm="6" size-xs="12">
-                    <ion-card>
+                    <ion-card style="margin-top: 5px; margin-bottom: 7px; margin-left: 5px; margin-right: 5px;">
                         <div class="header1">
                             <ion-item lines="none">
                                 <div class="infoleft">
@@ -98,49 +70,49 @@
                                         <ion-grid class="con_textos">
 
                                             <ion-row style=" margin-left: -5px;">
-                                                <ion-col text-right size="5" class="texto-venta" style="margin-left: -5px;">
+                                                <ion-col class="ion-text-right" size="5" class="texto-venta" style="margin-left: -5px;">
                                                     <p>Venta</p>
                                                 </ion-col>
-                                                <ion-col text-left size="6" *ngIf=" producto.concompras == true ">
+                                                <ion-col class="ion-text-left" size="6" *ngIf=" producto.concompras == true ">
                                                     <ion-badge color="danger" item-end>Futuro</ion-badge>
                                                 </ion-col>
-                                                <ion-col text-left size="6" *ngIf=" producto.concompras == false ">
+                                                <ion-col class="ion-text-left" size="6" *ngIf=" producto.concompras == false ">
                                                     <ion-badge color="primary" item-end>de Stock</ion-badge>
                                                 </ion-col>
                                             </ion-row>
 
                                             <ion-row>
-                                                <ion-col text-right size="5" class="texto-venta" style="margin-left: -5px;">
+                                                <ion-col class="ion-text-right" size="5" class="texto-venta" style="margin-left: -5px;">
                                                     <p>{{ producto.tipolista }}</p>
                                                 </ion-col>
-                                                <ion-col text-left size="6">
+                                                <ion-col class="ion-text-left" size="6">
                                                     <ion-badge color="danger" item-end>${{ producto.precio | number:'1.0-0' }}</ion-badge>
                                                 </ion-col>
                                             </ion-row>
 
                                             <ion-row>
-                                                <ion-col text-right size="5" class="texto-venta" style="margin-left: -5px;">
+                                                <ion-col class="ion-text-right" size="5" class="texto-venta" style="margin-left: -5px;">
                                                     <p>Dscto</p>
                                                 </ion-col>
-                                                <ion-col text-left size="6">
+                                                <ion-col class="ion-text-left" size="6">
                                                     <ion-badge color="danger" item-end (click)="cambiaDescuento(producto)">{{ producto.dsctovend | number:'1.0-2' }}%</ion-badge>
                                                 </ion-col>
                                             </ion-row>
 
                                             <ion-row>
-                                                <ion-col text-right size="5" class="texto-venta" style="margin-left: -5px;">
+                                                <ion-col class="ion-text-right" size="5" class="texto-venta" style="margin-left: -5px;">
                                                     <p>Curva</p>
                                                 </ion-col>
-                                                <ion-col text-left size="6">
+                                                <ion-col class="ion-text-left" size="6">
                                                     <ion-badge color="primary" item-end>{{ producto.rtu }}</ion-badge>
                                                 </ion-col>
                                             </ion-row>
 
                                             <ion-row>
-                                                <ion-col text-right size="5" class="texto-venta" style="margin-left: -5px;">
+                                                <ion-col class="ion-text-right" size="5" class="texto-venta" style="margin-left: -5px;">
                                                     <p>Total</p>
                                                 </ion-col>
-                                                <ion-col text-left size="6">
+                                                <ion-col class="ion-text-left" size="6">
                                                     <ion-badge color="danger" item-end>${{ (producto.precio - (producto.precio*producto.dsctovend/100) )*producto.rtu | number:'1.0-0' }}</ion-badge>
                                                 </ion-col>
                                             </ion-row>
@@ -151,34 +123,34 @@
                                         <ion-grid>
 
                                             <ion-row>
-                                                <ion-col text-right size="2" class="texto-venta">
+                                                <ion-col class="ion-text-right" size="2" class="texto-venta">
                                                     <p>Venta</p>
                                                 </ion-col>
-                                                <ion-col text-left size="3" *ngIf=" producto.concompras == true ">
+                                                <ion-col class="ion-text-left" size="3" *ngIf=" producto.concompras == true ">
                                                     <ion-badge color="danger" item-end>Futuro</ion-badge>
                                                 </ion-col>
-                                                <ion-col text-left size="3" *ngIf=" producto.concompras == false ">
+                                                <ion-col class="ion-text-left" size="3" *ngIf=" producto.concompras == false ">
                                                     <ion-badge color="primary" item-end>de Stock</ion-badge>
                                                 </ion-col>
-                                                <ion-col text-right size="2" class="texto-venta">
+                                                <ion-col class="ion-text-right" size="2" class="texto-venta">
                                                     <p>{{ producto.tipolista }}</p>
                                                 </ion-col>
-                                                <ion-col text-left size="4">
+                                                <ion-col class="ion-text-left" size="4">
                                                     <ion-badge color="danger" item-end>${{ producto.precio | number:'1.0-0' }}</ion-badge>
                                                 </ion-col>
                                             </ion-row>
 
                                             <ion-row>
-                                                <ion-col text-right size="2" class="texto-venta">
+                                                <ion-col class="ion-text-right" size="2" class="texto-venta">
                                                     <p>Dscto</p>
                                                 </ion-col>
-                                                <ion-col text-left size="3">
+                                                <ion-col class="ion-text-left" size="3">
                                                     <ion-badge color="danger" item-end (click)="cambiaDescuento(producto)">{{ producto.dsctovend | number:'1.0-2' }}%</ion-badge>
                                                 </ion-col>
-                                                <ion-col text-right size="2" class="texto-venta">
+                                                <ion-col class="ion-text-right" size="2" class="texto-venta">
                                                     <p>Curva</p>
                                                 </ion-col>
-                                                <ion-col text-left size="4">
+                                                <ion-col class="ion-text-left" size="4">
                                                     <ion-badge color="primary" item-end>{{ producto.rtu }}</ion-badge>
                                                 </ion-col>
                                             </ion-row>
@@ -186,10 +158,10 @@
                                             <ion-row>
                                                 <ion-col size="5">
                                                 </ion-col>
-                                                <ion-col text-right size="2" class="texto-venta">
+                                                <ion-col class="ion-text-right" size="2" class="texto-venta">
                                                     <p>Total</p>
                                                 </ion-col>
-                                                <ion-col text-left size="5">
+                                                <ion-col class="ion-text-left" size="5">
                                                     <ion-badge color="danger" item-end>${{ producto.precio*producto.rtu | number:'1.0-0' }}</ion-badge>
                                                 </ion-col>
                                             </ion-row>
@@ -238,24 +210,27 @@
             <ion-icon name="add"></ion-icon>
         </ion-fab-button>
         <ion-fab-list side="top">
-            <ion-fab-button (click)="masOpciones()" [color]=" filtrosVarios   ? 'danger' : 'primary' ">
+            <ion-fab-button size="small" (click)="ventas()" color="primary">
+                <ion-icon name="cash"> </ion-icon>
+            </ion-fab-button>
+            <ion-fab-button size="small" (click)="masOpciones()" [color]=" filtrosVarios   ? 'danger' : 'primary' ">
                 <ion-icon name="flash"></ion-icon>
             </ion-fab-button>
-            <ion-fab-button (click)="imagenOnOff()" [color]=" config_imagenes ? 'danger' : 'primary' ">
+            <ion-fab-button size="small" (click)="imagenOnOff()" [color]=" config_imagenes ? 'danger' : 'primary' ">
                 <ion-icon [name]=" config_imagenes ? 'eye-off' : 'eye' "></ion-icon>
             </ion-fab-button>
-            <ion-fab-button (click)="filtros()" color="primary">
+            <ion-fab-button size="small" (click)="filtros()" color="primary">
                 <ion-icon name="options"></ion-icon>
             </ion-fab-button>
-            <ion-fab-button (click)="orden()" color="primary">
+            <ion-fab-button size="small" (click)="orden()" color="primary">
                 <ion-icon name="funnel"> </ion-icon>
             </ion-fab-button>
-            <ion-fab-button (click)="scrollToTop()" color="danger">
+            <ion-fab-button size="small" (click)="scrollToTop()" color="danger">
                 <ion-icon name="arrow-up"> </ion-icon>
             </ion-fab-button>
         </ion-fab-list>
         <ion-fab-list side="end">
-            <ion-fab-button (click)="Cliente()" color="primary">
+            <ion-fab-button size="small" (click)="Cliente()" color="primary">
                 <ion-icon name="person"></ion-icon>
             </ion-fab-button>
         </ion-fab-list>

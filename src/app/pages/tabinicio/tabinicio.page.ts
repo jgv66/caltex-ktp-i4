@@ -5,6 +5,7 @@ import { AlertController, ModalController, IonContent, Events } from '@ionic/ang
 import { ImagenprodPage } from '../imagenprod/imagenprod.page';
 import { ClientePage } from '../cliente/cliente.page';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { VentasComponent } from '../../components/ventas/ventas.component';
 
 @Component({
   selector: 'app-tabinicio',
@@ -151,15 +152,12 @@ export class TabinicioPage implements OnInit {
       this.funciones.msgAlert('ATENCION', 'Su búsqueda no tiene resultados. Intente con otros datos.');
     } else {
       //
-      console.log( rs );
-      // this.listaProductos = ( this.offset === 0 ) ? rs : this.listaProductos.concat(data['data']);
-      // codigo desde: https://dev.to/uilicious/javascript-array-push-is-945x-faster-than-array-concat-1oki
       if ( this.offset === 0 ) {
         largoActual = 0;
         this.listaProductos = rs;
       } else {
         largoActual = this.listaProductos.length;
-        this.listaProductos.push(...rs);
+        this.listaProductos.push( ...rs );
       }
 
       // aqui detengo el scroll
@@ -183,6 +181,7 @@ export class TabinicioPage implements OnInit {
 
   private ForSobreItemes( largoActual, dato ) {
     //
+    // console.log(dato);
     for (let index = largoActual; index < this.listaProductos.length; index++) {
       const element = this.listaProductos[index];
       if ( element.ecu_max1 !== '' ) {
@@ -198,7 +197,7 @@ export class TabinicioPage implements OnInit {
             this.listaProductos[index].ecu_max1 = '';
           }
         } catch {
-           console.log( 'problemas con ecuacion', element );
+           //  console.log( 'problemas con ecuacion', element );
         }
       }
     }
@@ -450,6 +449,14 @@ export class TabinicioPage implements OnInit {
     } else {
       this.datos.saveDatoLocal( 'KTP_orden', 'CODIGO' );
     }
+  }
+
+  async ventas() {
+    const modal = await this.modalCtrl.create({
+      component: VentasComponent,
+      componentProps: { usuario: this.usuario }
+    });
+    await modal.present();
   }
 
 }

@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "F:\\ionic4\\caltex-inf-server_8125"
 		}
 	],
 	"settings": {}

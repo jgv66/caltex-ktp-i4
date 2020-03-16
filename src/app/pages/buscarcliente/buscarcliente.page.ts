@@ -35,6 +35,7 @@ export class BuscarclientePage implements OnInit {
     if ( this.codcliente === undefined ) {
       this.funciones.msgAlert( 'DATO VACIO', 'Debe indicar algún dato para buscar....');
     } else {
+      this.listaClientes = [];
       this.datos.getDataSp( '/ktp_buscarClientes',
                             true,
                             { dato:    this.codcliente,
@@ -54,7 +55,7 @@ export class BuscarclientePage implements OnInit {
     if ( rs === undefined || rs.length === 0 ) {
         this.funciones.msgAlert('ATENCION', 'Su búsqueda no tiene resultados. Intente con otros datos.');
     } else if ( largo > 0 ) {
-      this.listaClientes = rs;
+      this.listaClientes.push( ...rs );
     }
   }
 

@@ -9,6 +9,9 @@ import { ImagenprodPage } from '../imagenprod/imagenprod.page';
 import { ImagenprodPageModule } from '../imagenprod/imagenprod.module';
 import { ClientePage } from '../cliente/cliente.page';
 import { ClientePageModule } from '../cliente/cliente.module';
+import { ComponentsModule } from 'src/app/components/components.module';
+import { VentasComponent } from '../../components/ventas/ventas.component';
+import { DetalleventaComponent } from '../../components/detalleventa/detalleventa.component';
 
 const routes: Routes = [
   {
@@ -18,15 +21,16 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  entryComponents: [ImagenprodPage, ClientePage],
+  entryComponents: [ImagenprodPage, ClientePage, VentasComponent, DetalleventaComponent ],
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
     ImagenprodPageModule,
-    ClientePageModule
+    ClientePageModule,
+    ComponentsModule
   ],
-  declarations: [TabinicioPage]
+  declarations: [ TabinicioPage ]
 })
 export class TabinicioPageModule {}
