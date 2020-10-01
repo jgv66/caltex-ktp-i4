@@ -57,10 +57,10 @@ export class LoginPage implements OnInit {
     } else {
       this.datos.getDataUser( 'proalma', this.email, this.clave, this.empresa, this.uuid, 'ktp' )
         .subscribe( data => {
-          // console.log(data);
           const rs = data['recordsets'][0];
           if ( rs[0].KOFU ) {
             //
+            // console.log(rs[0]);
             this.datos.saveDatoLocal( 'KTP_usuario', rs[0] );
             // empresa
             this.empresas.forEach( element => {

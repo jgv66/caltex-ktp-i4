@@ -75,6 +75,7 @@ export class FuncionesService {
                         cliente:      '',
                         suc_cliente:  '',
                         codigo:       '',
+                        codigoimagen: '',
                         descrip:      '',
                         cantidad:     0,
                         saldo_ud1:    0,
@@ -137,6 +138,7 @@ export class FuncionesService {
         this.miCarrito[0].descrip      = producto.descripcion;
         this.miCarrito[0].cantidad     = producto.apedir;
         this.miCarrito[0].saldo_ud1    = producto.saldo_ud1;
+        this.miCarrito[0].codigoimagen = producto.codigosincolor;
         this.miCarrito[0].precio       = producto.precio;
         this.miCarrito[0].preciomayor  = producto.preciomayor;
         this.miCarrito[0].descuentomax = producto.descuentomax;
@@ -157,6 +159,7 @@ export class FuncionesService {
                               descrip:      producto.descripcion,
                               cantidad:     producto.apedir,
                               saldo_ud1:    producto.saldo_ud1,
+                              codigoimagen: producto.codigosincolor,
                               precio:       producto.precio,
                               preciomayor:  producto.preciomayor,
                               descuentomax: producto.descuentomax,

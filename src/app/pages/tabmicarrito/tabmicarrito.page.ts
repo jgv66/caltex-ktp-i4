@@ -90,6 +90,7 @@ export class TabmicarritoPage implements OnInit {
   }
 
   async preguntaGrabar() {
+    console.log(this.carrito);
     const confirm = await this.alertCtrl.create({
       header:  'Grabar documento',
       message: 'Desea grabar este pedido ?',

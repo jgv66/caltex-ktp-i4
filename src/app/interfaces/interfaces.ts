@@ -12,6 +12,7 @@ export interface Carrito {
     codigo: string;
     descrip: string;
     cantidad: number;
+    codigoimagen: string;
     saldo_ud1: number;
     precio: number;
     preciomayor: number;

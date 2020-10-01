@@ -6,6 +6,7 @@ import { ImagenprodPage } from '../imagenprod/imagenprod.page';
 import { ClientePage } from '../cliente/cliente.page';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { VentasComponent } from '../../components/ventas/ventas.component';
+import { DeudaPage } from '../deuda/deuda.page';
 
 @Component({
   selector: 'app-tabinicio',
@@ -148,6 +149,9 @@ export class TabinicioPage implements OnInit {
   revisaExitooFracaso( data: any, xdesde: any, infiniteScroll?: any ) {
     let largoActual = 0;
     const rs = data['data'];
+    //
+    // console.log(data['data']);
+    //
     if ( data['data'] === undefined || data['data'] === 'error en la consulta' || data['data'] === [] ) {
       this.funciones.msgAlert('ATENCION', 'Su búsqueda no tiene resultados. Intente con otros datos.');
     } else {
@@ -454,6 +458,14 @@ export class TabinicioPage implements OnInit {
   async ventas() {
     const modal = await this.modalCtrl.create({
       component: VentasComponent,
+      componentProps: { usuario: this.usuario }
+    });
+    await modal.present();
+  }
+
+  async deudas() {
+    const modal = await this.modalCtrl.create({
+      component: DeudaPage,
       componentProps: { usuario: this.usuario }
     });
     await modal.present();
